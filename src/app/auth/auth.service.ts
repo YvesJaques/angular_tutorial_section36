@@ -17,23 +17,13 @@ export class AuthService {
     loggedIn = false;
 
     signup(email: string, password: string) {
-        this.http.post<AuthResponseData>('fireabaseurl',
+        return this.http.post<AuthResponseData>('fireabaseurl',
             {
                 email: email,
                 password: password,
                 returnSecureToken: true
             }
         )
-
-        const response: AuthResponseData = {
-            kind: "test",
-            idToken: "test",
-            email: "test@test.com",
-            refreshToken: "test",
-            expiresIn: "test",
-            localId: "test"
-        }
-        return response
     }
     login() {
         this.loggedIn = true;
