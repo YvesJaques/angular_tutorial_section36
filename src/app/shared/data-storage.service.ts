@@ -12,7 +12,7 @@ export class DataStorageService {
 
   storeRecipes() {
     const recipes = this.recipeService.getRecipes();
-    this.http
+    return this.http
       .put(
         `${environment.firebaseDbUrl}/recipes.json`,
         recipes
