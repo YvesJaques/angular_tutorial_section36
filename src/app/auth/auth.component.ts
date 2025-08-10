@@ -38,14 +38,6 @@ export class AuthComponent {
                 error => {
                     this.error = 'An error occured';
                     this.isLoading = false;
-                    return {
-                        kind: "test",
-                        idToken: "test",
-                        email: "test@test.com",
-                        refreshToken: "test",
-                        expiresIn: "test",
-                        localId: "test"
-                    }
                 }
             );
         }
