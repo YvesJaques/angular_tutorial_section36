@@ -1,5 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
+import { throwError } from "rxjs";
+import { catchError } from "rxjs/operators";
 import { environment } from "src/environments/environment";
 
 interface AuthResponseData {
@@ -25,7 +27,24 @@ export class AuthService {
                 password: password,
                 returnSecureToken: true
             }
-        )
+        ).pipe(catchError(errorRes => {
+            let errorMessage = 'An unknown error occurred!';
+            if (!errorRes.error || !errorRes.error.error) {
+                return throwError(errorMessage);
+            }
+            switch (errorRes.error.error.message) {
+                case 'EMAIL_EXISTS':
+                    errorMessage = 'Email already exists';
+                    break;
+                case 'OPERATION_NOT_ALLOWED':
+                    errorMessage = 'Password sign-in is disabled for this project';
+                    break;
+                case 'TOO_MANY_ATTEMPTS_TRY_LATER':
+                    errorMessage = 'We have blocked all requests from this device due to unusual activity. Try again later';
+                    break;
+            }
+            return throwError(errorMessage);
+        }))
     }
     login() {
         this.loggedIn = true;
