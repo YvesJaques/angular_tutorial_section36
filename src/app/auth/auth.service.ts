@@ -1,4 +1,4 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { throwError } from "rxjs";
 import { catchError } from "rxjs/operators";
@@ -28,24 +28,7 @@ export class AuthService {
                 password: password,
                 returnSecureToken: true
             }
-        ).pipe(catchError(errorRes => {
-            let errorMessage = 'An unknown error occurred!';
-            if (!errorRes.error || !errorRes.error.error) {
-                return throwError(errorMessage);
-            }
-            switch (errorRes.error.error.message) {
-                case 'EMAIL_EXISTS':
-                    errorMessage = 'Email already exists';
-                    break;
-                case 'OPERATION_NOT_ALLOWED':
-                    errorMessage = 'Password sign-in is disabled for this project';
-                    break;
-                case 'TOO_MANY_ATTEMPTS_TRY_LATER':
-                    errorMessage = 'We have blocked all requests from this device due to unusual activity. Try again later';
-                    break;
-            }
-            return throwError(errorMessage);
-        }))
+        ).pipe(catchError(this.handleError))
     }
 
     login(email: string, password: string) {
@@ -56,10 +39,42 @@ export class AuthService {
                 password: password,
                 returnSecureToken: true
             }
-        )
+        ).pipe(catchError(this.handleError))
     }
 
     logout() {
         this.loggedIn = false;
+    }
+
+    private handleError(errorRes: HttpErrorResponse) {
+        let errorMessage = 'An unknown error occurred!';
+        if (!errorRes.error || !errorRes.error.error) {
+            return throwError(errorMessage);
+        }
+        switch (errorRes.error.error.message) {
+            case 'EMAIL_EXISTS':
+                errorMessage = 'Email already exists';
+                break;
+            case 'OPERATION_NOT_ALLOWED':
+                errorMessage = 'Password sign-in is disabled for this project';
+                break;
+            case 'TOO_MANY_ATTEMPTS_TRY_LATER':
+                errorMessage = 'We have blocked all requests from this device due to unusual activity. Try again later';
+                break;
+            case 'EMAIL_NOT_FOUND':
+                errorMessage = 'There is no user record corresponding to this identifier. The user may have been deleted.';
+                break;
+            case 'INVALID_PASSWORD':
+                errorMessage = 'The password is invalid or the user does not have a password.';
+                break;
+            case 'USER_DISABLED':
+                errorMessage = 'The user account has been disabled by an administrator.';
+                break;
+            case 'INVALID_LOGIN_CREDENTIALS':
+                errorMessage = 'Invalid login credentials.';
+                break;
+
+        }
+        return throwError(errorMessage);
     }
 }
