@@ -4,6 +4,7 @@ import { BehaviorSubject, Subject, throwError } from "rxjs";
 import { catchError, tap } from "rxjs/operators";
 import { environment } from "src/environments/environment";
 import { User } from "./user.model";
+import { Router } from "@angular/router";
 
 export interface AuthResponseData {
     kind: string;
@@ -19,7 +20,7 @@ export interface AuthResponseData {
 export class AuthService {
     user = new BehaviorSubject<User>(null);
 
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient, private router: Router) { }
 
     loggedIn = false;
 
@@ -39,6 +40,11 @@ export class AuthService {
                 +resData.expiresIn
             )
         }))
+    }
+
+    logout() {
+        this.user.next(null);
+        this.router.navigate(['/auth']);
     }
 
     private handleAuthentication(email: string, userId: string, token: string, expiresIn: number) {
@@ -74,10 +80,6 @@ export class AuthService {
                 );
             })
         );
-    }
-
-    logout() {
-        this.loggedIn = false;
     }
 
     private handleError(errorRes: HttpErrorResponse) {
